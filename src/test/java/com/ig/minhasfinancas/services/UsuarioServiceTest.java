@@ -6,6 +6,7 @@ import com.ig.minhasfinancas.exceptions.RegraNegocioException;
 import com.ig.minhasfinancas.services.UsuarioService;
 import com.ig.minhasfinancas.repositories.UsuarioRepository;
 import com.ig.minhasfinancas.services.impl.UsuarioServiceImpl;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Optional;
 
 
 @RunWith(SpringRunner.class)
@@ -29,6 +32,22 @@ public class UsuarioServiceTest {
     @Before
     public void setUp() {
         service = new UsuarioServiceImpl(repository);
+    }
+
+    @Test
+    public void deveAutenticarUmUsuarioComSucesso() {
+        // cenário
+        String email = "joaquim@gmail.com";
+        String senha = "senha";
+
+        Usuario usuario = Usuario.builder().email(email).senha(senha).id(1L).build();
+        Mockito.when(repository.findByEmail(email)).thenReturn(Optional.of(usuario));
+
+        // ação
+        Usuario result = service.autenticar(email, senha);
+
+        // verificação
+        Assertions.assertThat(result).isNotNull();
     }
 
     @Test(expected = Test.None.class)
