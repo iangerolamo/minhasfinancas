@@ -4,7 +4,6 @@ package com.ig.minhasfinancas.services;
 import com.ig.minhasfinancas.entities.Usuario;
 import com.ig.minhasfinancas.exceptions.ErroAutenticao;
 import com.ig.minhasfinancas.exceptions.RegraNegocioException;
-import com.ig.minhasfinancas.services.UsuarioService;
 import com.ig.minhasfinancas.repositories.UsuarioRepository;
 import com.ig.minhasfinancas.services.impl.UsuarioServiceImpl;
 import org.assertj.core.api.Assertions;
@@ -12,8 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -51,17 +48,20 @@ public class UsuarioServiceTest {
         Assertions.assertThat(result).isNotNull();
     }
 
-    @Test(expected = ErroAutenticao.class)
+    @Test
     public void deveLancarErroQuandoNaoEncontrarUsuarioCadastradoComOEmailInformado() {
 
         // cenário
         Mockito.when(repository.findByEmail(Mockito.anyString())).thenReturn(Optional.empty());
 
         // ação
-        service.autenticar("joaquim@gmail.com", "senha");
+        Throwable exception = Assertions.catchThrowable( () ->  service.autenticar("joaquim@gmail.com", "senha") );
+
+        // verificação
+        Assertions.assertThat(exception).isInstanceOf(ErroAutenticao.class).hasMessage("Usuário não encotrado.");
     }
 
-    @Test(expected = ErroAutenticao.class)
+    @Test
     public void deveLancarErroQuandoSenhaNaoBater() {
         // cenário
         String senha = "senha";
@@ -73,7 +73,10 @@ public class UsuarioServiceTest {
         Mockito.when(repository.findByEmail(Mockito.anyString())).thenReturn(Optional.of(usuario));
 
         // ação
-        service.autenticar("joaquim@gmail.com", "123");
+        Throwable exception = Assertions.catchThrowable( () ->  service.autenticar("joaquim@gmail.com", "123") );
+
+        // verificação
+        Assertions.assertThat(exception).isInstanceOf(ErroAutenticao.class).hasMessage("Senha inválida.");
     }
 
     @Test(expected = Test.None.class)
