@@ -2,6 +2,7 @@ package com.ig.minhasfinancas.services;
 
 
 import com.ig.minhasfinancas.entities.Usuario;
+import com.ig.minhasfinancas.exceptions.ErroAutenticao;
 import com.ig.minhasfinancas.exceptions.RegraNegocioException;
 import com.ig.minhasfinancas.services.UsuarioService;
 import com.ig.minhasfinancas.repositories.UsuarioRepository;
@@ -48,6 +49,31 @@ public class UsuarioServiceTest {
 
         // verificação
         Assertions.assertThat(result).isNotNull();
+    }
+
+    @Test(expected = ErroAutenticao.class)
+    public void deveLancarErroQuandoNaoEncontrarUsuarioCadastradoComOEmailInformado() {
+
+        // cenário
+        Mockito.when(repository.findByEmail(Mockito.anyString())).thenReturn(Optional.empty());
+
+        // ação
+        service.autenticar("joaquim@gmail.com", "senha");
+    }
+
+    @Test(expected = ErroAutenticao.class)
+    public void deveLancarErroQuandoSenhaNaoBater() {
+        // cenário
+        String senha = "senha";
+        Usuario usuario = Usuario
+                .builder()
+                .email("joaquim@gmail.com")
+                .senha(senha)
+                .build();
+        Mockito.when(repository.findByEmail(Mockito.anyString())).thenReturn(Optional.of(usuario));
+
+        // ação
+        service.autenticar("joaquim@gmail.com", "123");
     }
 
     @Test(expected = Test.None.class)
