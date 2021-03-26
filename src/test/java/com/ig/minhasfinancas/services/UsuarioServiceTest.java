@@ -82,7 +82,7 @@ public class UsuarioServiceTest {
         Throwable exception = Assertions.catchThrowable( () ->  service.autenticar("joaquim@gmail.com", "senha") );
 
         // verificação
-        Assertions.assertThat(exception).isInstanceOf(ErroAutenticao.class).hasMessage("Usuário não encotrado.");
+        Assertions.assertThat(exception).isInstanceOf(ErroAutenticao.class).hasMessage("Usuário não encontrado.");
     }
 
     @Test
