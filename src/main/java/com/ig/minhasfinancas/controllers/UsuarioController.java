@@ -2,6 +2,7 @@ package com.ig.minhasfinancas.controllers;
 
 import com.ig.minhasfinancas.dto.UsuarioDTO;
 import com.ig.minhasfinancas.entities.Usuario;
+import com.ig.minhasfinancas.exceptions.ErroAutenticao;
 import com.ig.minhasfinancas.exceptions.RegraNegocioException;
 import com.ig.minhasfinancas.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,19 @@ public class UsuarioController {
     public UsuarioController(UsuarioService service) {
         this.service = service;
     }
+
+    @PostMapping("/autenticar")
+    public ResponseEntity autenticar(@RequestBody UsuarioDTO dto) {
+        try {
+            Usuario usuarioAutenticado = service.autenticar(dto.getEmail(), dto.getSenha());
+            return new ResponseEntity<>(usuarioAutenticado, HttpStatus.OK);
+        } catch (ErroAutenticao e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+    }
+
+
 
     @PostMapping
     public ResponseEntity salvar(@RequestBody UsuarioDTO dto) {
