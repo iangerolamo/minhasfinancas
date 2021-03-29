@@ -8,6 +8,7 @@ import com.ig.minhasfinancas.entities.enums.TipoLancamento;
 import com.ig.minhasfinancas.exceptions.RegraNegocioException;
 import com.ig.minhasfinancas.services.LancamentoService;
 import com.ig.minhasfinancas.services.UsuarioService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,15 +18,11 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/lancamentos")
+@RequiredArgsConstructor
 public class LancamentoController {
 
     private final LancamentoService lancamentoService;
-    private UsuarioService usuarioService;
-
-    public LancamentoController(LancamentoService lancamentoService) {
-
-        this.lancamentoService = lancamentoService;
-    }
+    private final UsuarioService usuarioService;
 
     @GetMapping
     public ResponseEntity buscar(
