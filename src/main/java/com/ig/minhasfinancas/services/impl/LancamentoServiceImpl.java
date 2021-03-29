@@ -21,6 +21,7 @@ public class LancamentoServiceImpl implements LancamentoService {
     private final LancamentoRepository repository;
 
     public LancamentoServiceImpl(LancamentoRepository repository) {
+
         this.repository = repository;
     }
 
@@ -50,11 +51,12 @@ public class LancamentoServiceImpl implements LancamentoService {
     @Override
     @Transactional(readOnly = true)
     public List<Lancamento> buscar(Lancamento lancamentoFiltro) {
-        Example example = Example.of(lancamentoFiltro,
+        Example example = Example.of( lancamentoFiltro,
                 ExampleMatcher.matching()
                         .withIgnoreCase()
-                        .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING));
-        return null;
+                        .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING) );
+
+        return repository.findAll(example);
     }
 
     @Override

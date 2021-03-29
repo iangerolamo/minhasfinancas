@@ -25,7 +25,7 @@ public class LancamentoController {
     private final UsuarioService usuarioService;
 
     @GetMapping
-    public ResponseEntity buscar(
+    private ResponseEntity buscar(
             @RequestParam(value="descricao", required = false) String descricao,
             @RequestParam(value="mes", required = false) Integer mes,
             @RequestParam(value="ano", required = false) Integer ano,
@@ -50,18 +50,18 @@ public class LancamentoController {
     }
 
     @PostMapping
-    public ResponseEntity salvar(@RequestBody LancamentoDTO dto) {
+    private ResponseEntity salvar(@RequestBody LancamentoDTO dto) {
         try {
             Lancamento entidade = converter(dto);
             entidade = lancamentoService.salvar(entidade);
-            return new ResponseEntity<>(entidade, HttpStatus.CREATED);
+            return new ResponseEntity(entidade, HttpStatus.CREATED);
         } catch (RegraNegocioException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Lancamento> atualizar(@PathVariable Long id, @RequestBody LancamentoDTO dto) {
+    private ResponseEntity<Lancamento> atualizar(@PathVariable Long id, @RequestBody LancamentoDTO dto) {
         return (ResponseEntity<Lancamento>) lancamentoService.obterPorId(id).map(entity -> {
             try {
                 Lancamento lancamento = converter(dto);
@@ -76,7 +76,7 @@ public class LancamentoController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity deletar(@PathVariable("id") Long id) {
+    private ResponseEntity deletar(@PathVariable("id") Long id) {
         return lancamentoService.obterPorId(id).map(entidade -> {
             lancamentoService.deletar(entidade);
             return new ResponseEntity(HttpStatus.NO_CONTENT);
@@ -84,7 +84,7 @@ public class LancamentoController {
                 new ResponseEntity("Lançamento não encontrado.", HttpStatus.BAD_REQUEST));
     }
 
-    public Lancamento converter(LancamentoDTO dto) {
+    private Lancamento converter(LancamentoDTO dto) {
         Lancamento lancamento = new Lancamento();
         lancamento.setId(dto.getId());
         lancamento.setDescricao(dto.getDescricao());
@@ -94,11 +94,17 @@ public class LancamentoController {
 
         Usuario usuario = usuarioService
                 .obterPorId(dto.getUsuario())
-                .orElseThrow(() -> new RegraNegocioException("Usuário não encontrado para o id informado."));
+                .orElseThrow( () -> new RegraNegocioException("Usuário não encontrado para o Id informado.") );
 
         lancamento.setUsario(usuario);
-        lancamento.setTipo(TipoLancamento.valueOf(dto.getTipo()));
-        lancamento.setStatus(StatusLancamento.valueOf(dto.getStatus()));
+
+        if(dto.getTipo() != null) {
+            lancamento.setTipo(TipoLancamento.valueOf(dto.getTipo()));
+        }
+
+        if(dto.getStatus() != null) {
+            lancamento.setStatus(StatusLancamento.valueOf(dto.getStatus()));
+        }
 
         return lancamento;
     }

@@ -36,7 +36,7 @@ public class Lancamento {
     private Integer ano;
 
     @ManyToOne
-    @JoinColumn(name = "id_usario")
+    @JoinColumn(name = "id_usuario")
     private Usuario usario;
 
     @Column(name = "valor")
