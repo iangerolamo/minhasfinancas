@@ -1,5 +1,6 @@
 package com.ig.minhasfinancas.controllers;
 
+import com.ig.minhasfinancas.dto.AtualizaStatusDTO;
 import com.ig.minhasfinancas.dto.LancamentoDTO;
 import com.ig.minhasfinancas.entities.Lancamento;
 import com.ig.minhasfinancas.entities.Usuario;
@@ -37,10 +38,10 @@ public class LancamentoController {
         lancamentoFiltro.setAno(ano);
 
         Optional<Usuario> usuario = usuarioService.obterPorId(idUsuario);
-        if(usuario.isPresent()) {
+        if(!usuario.isPresent()) {
             return ResponseEntity.badRequest().body("Não foi possível realizar a consulta. Usuário não encontrado para o id informado");
         } else {
-            lancamentoFiltro.setUsario(usuario.get());
+            lancamentoFiltro.setUsuario(usuario.get());
         }
 
         List<Lancamento> lancamentos = lancamentoService.buscar(lancamentoFiltro);
@@ -75,6 +76,27 @@ public class LancamentoController {
                 new ResponseEntity("Lançamento não encontrado.", HttpStatus.BAD_REQUEST));
     }
 
+    @PutMapping("{id}/atualiza-status")
+    public ResponseEntity atualizarStatus( @PathVariable("id") Long id , @RequestBody AtualizaStatusDTO dto ) {
+        return lancamentoService.obterPorId(id).map( entity -> {
+            StatusLancamento statusSelecionado = StatusLancamento.valueOf(dto.getStatus());
+
+            if(statusSelecionado == null) {
+                return ResponseEntity.badRequest().body("Não foi possível atualizar o status do lançamento, envie um status válido.");
+            }
+
+            try {
+                entity.setStatus(statusSelecionado);
+                lancamentoService.atualizar(entity);
+                return ResponseEntity.ok(entity);
+            }catch (RegraNegocioException e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
+
+        }).orElseGet( () ->
+                new ResponseEntity("Lancamento não encontrado na base de Dados.", HttpStatus.BAD_REQUEST) );
+    }
+
     @DeleteMapping("{id}")
     private ResponseEntity deletar(@PathVariable("id") Long id) {
         return lancamentoService.obterPorId(id).map(entidade -> {
@@ -96,7 +118,7 @@ public class LancamentoController {
                 .obterPorId(dto.getUsuario())
                 .orElseThrow( () -> new RegraNegocioException("Usuário não encontrado para o Id informado.") );
 
-        lancamento.setUsario(usuario);
+        lancamento.setUsuario(usuario);
 
         if(dto.getTipo() != null) {
             lancamento.setTipo(TipoLancamento.valueOf(dto.getTipo()));

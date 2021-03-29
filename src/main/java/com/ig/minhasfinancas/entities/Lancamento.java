@@ -22,8 +22,8 @@ import java.time.LocalDate;
 public class Lancamento {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "descricao")
@@ -37,7 +37,7 @@ public class Lancamento {
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
-    private Usuario usario;
+    private Usuario usuario;
 
     @Column(name = "valor")
     private BigDecimal valor;

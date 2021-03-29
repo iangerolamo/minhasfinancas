@@ -2,6 +2,7 @@ package com.ig.minhasfinancas.services.impl;
 
 import com.ig.minhasfinancas.entities.Lancamento;
 import com.ig.minhasfinancas.entities.enums.StatusLancamento;
+import com.ig.minhasfinancas.entities.enums.TipoLancamento;
 import com.ig.minhasfinancas.exceptions.RegraNegocioException;
 import com.ig.minhasfinancas.repositories.LancamentoRepository;
 import com.ig.minhasfinancas.services.LancamentoService;
@@ -80,7 +81,7 @@ public class LancamentoServiceImpl implements LancamentoService {
             throw new RegraNegocioException("Informe um ano válido");
         }
 
-        if (lancamento.getUsario() == null || lancamento.getUsario().getId() == null) {
+        if (lancamento.getUsuario() == null || lancamento.getUsuario().getId() == null) {
             throw new RegraNegocioException("Informe um usuário");
         }
 
@@ -96,5 +97,23 @@ public class LancamentoServiceImpl implements LancamentoService {
     @Override
     public Optional<Lancamento> obterPorId(Long id) {
         return repository.findById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal obterSaldoPorUsuario(Long id) {
+
+        BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEUsuarioEStatus(id, TipoLancamento.RECEITA, StatusLancamento.EFETIVADO);
+        BigDecimal despesas = repository.obterSaldoPorTipoLancamentoEUsuarioEStatus(id, TipoLancamento.DESPESA, StatusLancamento.EFETIVADO);
+
+        if(receitas == null) {
+            receitas = BigDecimal.ZERO;
+        }
+
+        if(despesas == null) {
+            despesas = BigDecimal.ZERO;
+        }
+
+        return receitas.subtract(despesas);
     }
 }
